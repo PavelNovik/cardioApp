@@ -86,10 +86,7 @@ class App {
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.#map);
 
-    L.marker(coords)
-      .addTo(this.#map)
-      .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-      .openPopup();
+    L.marker(coords).addTo(this.#map).bindPopup('You are here!').openPopup();
 
     // Обработка клика на карте
 
