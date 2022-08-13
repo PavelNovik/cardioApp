@@ -17,6 +17,15 @@ class Workout {
     this.distance = distance;
     this.duration = duration;
   }
+  _setDescription() {
+    this.type === 'running'
+      ? (this.description = `Пробежка ${new Intl.DateTimeFormat('ru-RU').format(
+          this.date
+        )}`)
+      : (this.description = `Велотренировка ${new Intl.DateTimeFormat(
+          'ru-RU'
+        ).format(this.date)}`);
+  }
 }
 
 class Running extends Workout {
@@ -25,6 +34,7 @@ class Running extends Workout {
     super(coords, distance, duration);
     this.temp = temp;
     this.calculatePace();
+    this._setDescription();
   }
 
   calculatePace() {
@@ -38,10 +48,11 @@ class Cycling extends Workout {
     super(coords, distance, duration);
     this.climb = climb;
     this.calculateSpeed();
+    this._setDescription();
   }
   calculateSpeed() {
     // km / h
-    this.speed = this.distance / this.duration / 60;
+    this.speed = (this.distance / this.duration) * 60;
   }
 }
 // const running = new Running([35, 12], 7, 40, 150);
@@ -102,6 +113,14 @@ class App {
     form.classList.remove('hidden');
     inputDistance.focus();
   }
+  _hideForm() {
+    inputDistance.value =
+      inputClimb.value =
+      inputDuration.value =
+      inputTemp.value =
+        '';
+    form.classList.add('hidden');
+  }
 
   _toggleClimbField() {
     inputClimb.closest('.form__row').classList.toggle('form__row--hidden');
@@ -159,19 +178,14 @@ class App {
 
     // Отобразить тренировку на карте
 
-    this.displayWorkout(workout);
+    this._displayWorkout(workout);
 
     // Отобразить тренировку в списке
-
+    this._displayWorkoutOnSidebar(workout);
     // Очистка полей ввода данных и спрятать форму
-    inputDistance.value =
-      inputClimb.value =
-      inputDuration.value =
-      inputTemp.value =
-        '';
-    form.classList.add('hidden');
+    this._hideForm();
   }
-  displayWorkout(workout) {
+  _displayWorkout(workout) {
     L.marker(workout.coords)
       .addTo(this.#map)
       .bindPopup(
@@ -183,8 +197,61 @@ class App {
           className: `${workout.type}-popup`,
         })
       )
-      .setPopupContent('Training')
+      .setPopupContent(
+        `${workout.type === 'running' ? '🏃' : '🚵‍♂️'} ${workout.description}`
+      )
       .openPopup();
+  }
+  _displayWorkoutOnSidebar(workout) {
+    let html = `
+    <li class="workout workout--running" data-id='${workout.id}'>
+        <h2 class="workout__title">${workout.description}</h2>
+        <div class="workout__details">
+          <span class="workout__icon">${
+            workout.type === 'running' ? '🏃' : '🚵‍♂️'
+          }</span>
+          <span class="workout__value">${workout.distance}</span>
+          <span class="workout__unit">км</span>
+        </div>
+        <div class="workout__details">
+          <span class="workout__icon">⏱</span>
+          <span class="workout__value">${workout.duration}</span>
+          <span class="workout__unit">мин</span>
+        </div>
+        
+    `;
+    if (workout.type === 'running') {
+      html += `
+      <div class="workout__details">
+          <span class="workout__icon">📏⏱</span>
+          <span class="workout__value">${workout.pace.toFixed(2)}</span>
+          <span class="workout__unit">мин/км</span>
+        </div>
+        <div class="workout__details">
+          <span class="workout__icon">👟⏱</span>
+          <span class="workout__value">${workout.temp}</span>
+          <span class="workout__unit">шаг/мин</span>
+        </div>
+      </li>
+      `;
+    }
+
+    if (workout.type === 'cycling') {
+      html += `
+        <div class="workout__details">
+          <span class="workout__icon">📏⏱</span>
+          <span class="workout__value">${workout.speed.toFixed(2)}</span>
+          <span class="workout__unit">км/ч</span>
+        </div>
+        <div class="workout__details">
+          <span class="workout__icon">🏔</span>
+          <span class="workout__value">${workout.climb}</span>
+          <span class="workout__unit">м</span>
+        </div>
+      </li>
+      `;
+    }
+    form.insertAdjacentHTML('afterend', html);
   }
 }
 
