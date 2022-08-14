@@ -98,16 +98,16 @@ class App {
   _loadMap(position) {
     const { latitude } = position.coords;
     const { longitude } = position.coords;
-    console.log(position);
-    console.log(latitude, longitude);
-    console.log(
-      `https://www.google.com/maps/@${latitude},${longitude},22265m/data=!3m1!1e3?hl=en`
-    );
+    // console.log(position);
+    // console.log(latitude, longitude);
+    // console.log(
+    //   `https://www.google.com/maps/@${latitude},${longitude},22265m/data=!3m1!1e3?hl=en`
+    // );
 
     const coords = [latitude, longitude];
 
     this.#map = L.map('map').setView(coords, 13);
-    console.log(this.#map);
+    // console.log(this.#map);
 
     L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
       attribution:
@@ -226,7 +226,9 @@ class App {
   }
   _displayWorkoutOnSidebar(workout) {
     let html = `
-    <li class="workout workout--running" data-id="${workout.id}">
+    <li class="workout workout--${workout.type}" data-id="${
+      workout.id
+    }"><span class="close__training">x</span>
         <h2 class="workout__title">${workout.description}</h2>
         <div class="workout__details">
           <span class="workout__icon">${
@@ -274,10 +276,12 @@ class App {
       `;
     }
     form.insertAdjacentHTML('afterend', html);
+    const closeBtn = document.querySelector('.close__training');
+    closeBtn.addEventListener('click', this._closeTraining.bind(this));
   }
   _moveToWorkout(e) {
     const workoutElement = e.target.closest('.workout');
-    console.log(workoutElement);
+    // console.log(workoutElement);
     if (!workoutElement) return;
     const workout = this.#workouts.find(
       item => item.id === workoutElement.dataset.id
@@ -305,9 +309,20 @@ class App {
       this._displayWorkoutOnSidebar(workout);
     });
   }
+
   _reset() {
     localStorage.removeItem('workouts');
     location.reload();
+  }
+
+  _closeTraining(e) {
+    const workoutElement = e.target.closest('.workout');
+    console.log(workoutElement);
+    const workout = this.#workouts.find(
+      item => item.id === workoutElement.dataset.id
+    );
+    const index = this.#workouts.indexOf(workout);
+    console.log(index);
   }
 }
 
