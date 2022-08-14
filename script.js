@@ -282,7 +282,8 @@ class App {
   _moveToWorkout(e) {
     const workoutElement = e.target.closest('.workout');
     // console.log(workoutElement);
-    if (!workoutElement) return;
+    if (!workoutElement || e.target.classList.value === 'close__training')
+      return;
     const workout = this.#workouts.find(
       item => item.id === workoutElement.dataset.id
     );
@@ -316,6 +317,8 @@ class App {
   }
 
   _closeTraining(e) {
+    const span = e.target.classList.value;
+    console.log(span);
     const workoutElement = e.target.closest('.workout');
     console.log(workoutElement);
     const workout = this.#workouts.find(
@@ -323,6 +326,9 @@ class App {
     );
     const index = this.#workouts.indexOf(workout);
     console.log(index);
+    console.log(this.#workouts);
+    this.#workouts.splice(index, 1);
+    console.log(this.#workouts);
   }
 }
 
