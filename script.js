@@ -279,6 +279,15 @@ class App {
     const closeBtn = document.querySelector('.close__training');
     closeBtn.addEventListener('click', this._closeTraining.bind(this));
   }
+  _clearSidebar() {
+    [...document.getElementsByClassName('workout')].forEach(el => {
+      el.remove();
+    });
+  }
+  _clearMap() {
+    // this.#map.remove();
+    // L.marker(workout.coords).remove();
+  }
   _moveToWorkout(e) {
     const workoutElement = e.target.closest('.workout');
     // console.log(workoutElement);
@@ -317,18 +326,25 @@ class App {
   }
 
   _closeTraining(e) {
-    const span = e.target.classList.value;
-    console.log(span);
     const workoutElement = e.target.closest('.workout');
-    console.log(workoutElement);
-    const workout = this.#workouts.find(
+
+    const wrkout = this.#workouts.find(
       item => item.id === workoutElement.dataset.id
     );
-    const index = this.#workouts.indexOf(workout);
-    console.log(index);
-    console.log(this.#workouts);
+    console.log(wrkout);
+    const index = this.#workouts.indexOf(wrkout);
+
+    this._clearSidebar();
+    // this._clearMap();
+    // this._getPosition();
+
     this.#workouts.splice(index, 1);
-    console.log(this.#workouts);
+
+    this._addWorkoutsToLocalStorage();
+    this.#workouts.forEach(workout => {
+      this._displayWorkoutOnSidebar(workout);
+      // this._displayWorkout(workout);
+    });
   }
 }
 
