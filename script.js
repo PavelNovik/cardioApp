@@ -68,6 +68,7 @@ class App {
   #map;
   #mapEvent;
   #workouts = [];
+  #markers = [];
   constructor() {
     // Получение местоположения пользователя
     this._getPosition();
@@ -193,7 +194,7 @@ class App {
 
     // Добавить новый объект в массив тренировок
     this.#workouts.push(workout);
-    console.log(workout);
+    // console.log(workout);
 
     // Отобразить тренировку на карте
 
@@ -208,7 +209,7 @@ class App {
     this._addWorkoutsToLocalStorage();
   }
   _displayWorkout(workout) {
-    L.marker(workout.coords)
+    const marker = L.marker(workout.coords)
       .addTo(this.#map)
       .bindPopup(
         L.popup({
@@ -223,6 +224,11 @@ class App {
         `${workout.type === 'running' ? '🏃' : '🚵‍♂️'} ${workout.description}`
       )
       .openPopup();
+    let markerObj = {};
+    markerObj.id = workout.id;
+    markerObj.mark = marker;
+    this.#markers.push(markerObj);
+    // console.log(this.#markers);
   }
   _displayWorkoutOnSidebar(workout) {
     let html = `
@@ -284,9 +290,16 @@ class App {
       el.remove();
     });
   }
-  _clearMap() {
-    // this.#map.remove();
-    // L.marker(workout.coords).remove();
+  _clearMap(workout) {
+    let index;
+    this.#markers.forEach((el, ind) => {
+      if (el.id === workout.id) {
+        el.mark.remove();
+        index = ind;
+      }
+    });
+    this.#markers.splice(index, 1);
+    // console.log(this.markers);
   }
   _moveToWorkout(e) {
     const workoutElement = e.target.closest('.workout');
@@ -311,7 +324,7 @@ class App {
   }
   _getLocalStorageData() {
     const data = JSON.parse(localStorage.getItem('workouts'));
-    console.log(data);
+    // console.log(data);
     if (!data) return;
 
     this.#workouts = data;
@@ -331,11 +344,11 @@ class App {
     const wrkout = this.#workouts.find(
       item => item.id === workoutElement.dataset.id
     );
-    console.log(wrkout);
+    // console.log(wrkout);
     const index = this.#workouts.indexOf(wrkout);
 
     this._clearSidebar();
-    // this._clearMap();
+    this._clearMap(wrkout);
     // this._getPosition();
 
     this.#workouts.splice(index, 1);
